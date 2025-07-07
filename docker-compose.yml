@@ -1,0 +1,24 @@
+services:
+  sql1:
+    build: . 
+    container_name: sql1
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Holzweg247!
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./robot_data.csv:/data/robot_data.csv:ro
+      - ./import.sh:/data/import.sh:ro
+      - sql1-data:/var/opt/mssql
+    entrypoint:
+      - bash
+      - -c
+      - |
+        /opt/mssql/bin/sqlservr &      # start the engine
+        bash /data/import.sh            # ← explicitly invoke via bash
+        wait                            # keep container alive
+
+volumes:
+  sql1-data:
